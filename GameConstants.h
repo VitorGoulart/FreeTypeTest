@@ -1,0 +1,10 @@
+
+#ifndef LEARNOPENGL_GAMECONSTANTS_H
+#define LEARNOPENGL_GAMECONSTANTS_H
+
+namespace GameConstants {
+    const int SCREEN_WIDTH = 1600;
+    const int SCREEN_HEIGHT = 900;
+}
+
+#endif //LEARNOPENGL_GAMECONSTANTS_H
