@@ -7,10 +7,12 @@
 
 class Player : public Sprite {
 public:
-    void moveRight(float distance, int limit);
+    void moveRight(float distance);
     void moveLeft(float distance);
-    void moveUp(float distance, int limit);
+    void moveUp(float distance);
     void moveDown(float distance);
+private:
+    bool validateMove();
 };
 
 

@@ -8,26 +8,39 @@ class Sprite {
 public:
     Sprite() = default;
     ~Sprite();
-    void initialize(GLuint texId_, glm::vec3 pos_ = glm::vec3(0.0, 0.0, 0.0),
-                    glm::vec3 scale_ = glm::vec3(1.0, 1.0, 1.0), float angle_ = 0.0);
+    virtual void initialize(GLuint texId_, glm::vec3 pos_, glm::vec3 scale_,
+                            float angle_, int screenWidth, int screenHeight,
+                            int rows, int columns, int startingRow,
+                            double animationInterval, double movementInterval);
     void draw();
     //void terminate();
     inline void setShader(Shader *shader_) {
         this->shader = shader_;
     }
-    float getXMax();
-    float getXMin();
-    float getYMax();
-    float getYMin();
+    float getXMax() const;
+    float getXMin() const;
+    float getYMax() const;
+    float getYMin() const;
     bool collidesWith(Sprite *object);
+    int screenWidth;
+    int screenHeight;
 
 protected:
-    void update();
+    virtual void update();
+    void setVAO();
     GLuint VAO;
     GLuint texId;
-    glm::vec3 pos, sprite_scale;
+    glm::vec3 pos, scale;
     float angle;
     Shader *shader;
     float width;
     float height;
+    int spriteRows;
+    int spriteColumns;
+    int currentRow;
+    int currentColumn;
+    double lastAnimationUpdateTime;
+    double lastMovementUpdateTime;
+    double animationInterval;
+    double movementInterval;
 };

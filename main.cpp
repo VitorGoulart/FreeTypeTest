@@ -9,11 +9,11 @@
 #include "stb_image.h"
 #include "Sprites/Sprite.h"
 #include "Sprites/Player.h"
-#include "GameConstants.h"
+#include "Sprites/WaterElement.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-void processInput(GLFWwindow * window, int windowWidth, int windowHeight, Player * player);
+void processInput(GLFWwindow * window, Player * player);
 
 void error_callback(int error, const char *msg);
 
@@ -29,8 +29,11 @@ int main() {
 
     glfwSetErrorCallback(error_callback);
 
+    int screenWidth = 1600;
+    int screenHeight = 900;
+
     // glfw window creation
-    GLFWwindow* window = glfwCreateWindow(GameConstants::SCREEN_WIDTH, GameConstants::SCREEN_HEIGHT, "LearnOpenGL", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "LearnOpenGL", nullptr, nullptr);
     if (window == nullptr) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -52,18 +55,24 @@ int main() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    Shader shader("../shaders/texture.vert", "../shaders/texture.frag");
+    Shader shader("../shaders/texture.vert", "../shaders/animatedTexture.frag");
 
     GLuint backgroundTexId = loadTexture("../Textures/Backgrounds/1_game_background/1_game_background.png");
     GLuint playerTexId = loadTexture("../Textures/Characters/Shark/Idle.png");
+    GLuint fishTexId = loadTexture("../Textures/Fish/4.png");
 
     Sprite background;
     background.setShader(&shader);
-    background.initialize(backgroundTexId, glm::vec3(800.0, 450.0, 0.0), glm::vec3(GameConstants::SCREEN_WIDTH, GameConstants::SCREEN_HEIGHT, 1.0));
+    background.initialize(backgroundTexId, glm::vec3(800.0, 450.0, 0.0), glm::vec3(screenWidth, screenHeight, 1.0),
+                          0.0, screenWidth, screenHeight, 1, 1, 0, 1, 1);
 
     Player player;
     player.setShader(&shader);
-    player.initialize(playerTexId, glm::vec3(200.0, 450.0, 0.0), glm::vec3(200.0, 50.0, 1.0));
+    player.initialize(playerTexId, glm::vec3(200.0, 450.0, 0.0), glm::vec3(100.0, 100.0, 1.0), 0.0, screenWidth, screenHeight, 1, 4, 0, 0.15, 0.01);
+
+    WaterElement fish;
+    fish.setShader(&shader);
+    fish.initialize(fishTexId, glm::vec3(52.0, 16.0, 1.0), 0.0, 3.0, screenWidth, screenHeight, 1, 2, 0, 0.15, 0.01);
 
     glActiveTexture(GL_TEXTURE0);
 
@@ -76,19 +85,19 @@ int main() {
 
     // game loop
     while(!glfwWindowShouldClose(window)) {
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-        glViewport(0, 0, width, height);
+        glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
+        glViewport(0, 0, screenWidth, screenHeight);
 
         // input
         glfwPollEvents();
-        processInput(window, width, height, &player);
+        processInput(window, &player);
 
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         background.draw();
         player.draw();
+        fish.draw();
 
         // check and call events and swap the buffers
         glfwSwapBuffers(window);
@@ -102,22 +111,22 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow * window, int windowWidth, int windowHeight, Player * player) {
+void processInput(GLFWwindow * window, Player * player) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        player->moveUp(0.5f, windowHeight);
+        player->moveUp(10.0f);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        player->moveLeft(0.5f);
+        player->moveLeft(10.0f);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        player->moveDown(0.5f);
+        player->moveDown(10.0f);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        player->moveRight(0.5f, windowWidth);
+        player->moveRight(10.0f);
     }
 }
 

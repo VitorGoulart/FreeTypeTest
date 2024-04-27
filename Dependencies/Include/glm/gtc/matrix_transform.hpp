@@ -74,14 +74,14 @@ namespace glm
 		T angle,
 		tvec3<T, P> const & axis);
 
-	/// Builds a sprite_scale 4 * 4 matrix created from 3 scalars.
+	/// Builds a scale 4 * 4 matrix created from 3 scalars.
 	/// 
-	/// @param m Input matrix multiplied by this sprite_scale matrix.
+	/// @param m Input matrix multiplied by this scale matrix.
 	/// @param v Ratio of scaling for each axis.
 	/// @tparam T Value type used to build the matrix. Currently supported: half (not recommanded), float or double.
 	/// @see gtc_matrix_transform
-	/// @see - sprite_scale(tmat4x4<T, P> const & m, T x, T y, T z)
-	/// @see - sprite_scale(tvec3<T, P> const & v)
+	/// @see - scale(tmat4x4<T, P> const & m, T x, T y, T z)
+	/// @see - scale(tvec3<T, P> const & v)
 	template <typename T, precision P>
 	GLM_FUNC_DECL tmat4x4<T, P> scale(
 		tmat4x4<T, P> const & m,

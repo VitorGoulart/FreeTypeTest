@@ -16,6 +16,8 @@ add_executable(learnOpenGL main.cpp
         shader.cpp
         Sprites/Player.cpp
         Sprites/Player.h
-        GameConstants.h
+        GameValues.h
+        Sprites/WaterElement.cpp
+        Sprites/WaterElement.h
 )
 target_link_libraries(learnOpenGL glfw3)
