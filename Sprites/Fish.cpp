@@ -1,11 +1,11 @@
 
-#include "WaterElement.h"
+#include "Fish.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include <random>
 #include <GLFW/glfw3.h>
 
-void WaterElement::update() {
+void Fish::update() {
     if (this->pos.x < -100.0) {
         this->resetPosition();
     }
@@ -15,18 +15,12 @@ void WaterElement::update() {
         this->pos.x -= step;
     }
 
-    this->updateAnimation();
-
-    glm::mat4 model = glm::mat4(1);
-    model = glm::translate(model, pos);
-    model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0, 0.0, 1.0));
-    model = glm::scale(model, scale);
-    this->shader->setMat4("model", glm::value_ptr(model));
+    Sprite::update();
 }
 
-void WaterElement::initialize(GLuint texId_, glm::vec3 scale_, float angle_, float step_, int screenWidth_, int screenHeight_,
-                              int rows, int columns, int startingRow,
-                              double animationInterval_, double movementInterval_) {
+void Fish::initialize(GLuint texId_, glm::vec3 scale_, float angle_, float step_, int screenWidth_, int screenHeight_,
+                      int rows, int columns, int startingRow,
+                      double animationInterval_, double movementInterval_) {
     this->texId = texId_;
     this->scale = scale_;
     this->angle = angle_;
@@ -47,7 +41,11 @@ void WaterElement::initialize(GLuint texId_, glm::vec3 scale_, float angle_, flo
     this->setVAO();
 }
 
-void WaterElement::resetPosition() {
-    this->pos.x = (float) (this->screenWidth + 100.0);
+void Fish::resetPosition() {
+    this->pos.x = (float) (this->screenWidth + 100 + (rand() % 600));
     this->pos.y = (float) (100 + (rand() % (this->screenHeight - 300)));
+}
+
+Fish::~Fish() {
+    glDeleteVertexArrays(1, &VAO);
 }

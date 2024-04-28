@@ -9,8 +9,13 @@
 #include "stb_image.h"
 #include "Sprites/Sprite.h"
 #include "Sprites/Player.h"
-#include "Sprites/WaterElement.h"
+#include "Sprites/Fish.h"
+#include "Sprites/Trash.h"
+#include "Sprites/BackgroundLayer.h"
 #include <unordered_map>
+#include <vector>
+#include <filesystem>
+#include "GameValues.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -19,6 +24,8 @@ void processInput(GLFWwindow * window, Player * player);
 void error_callback(int error, const char *msg);
 
 GLuint loadTexture(const std::string& texturePath);
+
+void getBackgroundTexIds(int backgroundFolder, std::vector<GLuint> *texIdVector);
 
 int main() {
     glfwInit();
@@ -57,32 +64,62 @@ int main() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     Shader shader("../shaders/texture.vert", "../shaders/animatedTexture.frag");
+    Shader bgShader("../shaders/texture.vert", "../shaders/animatedTexture.frag");
 
     GLuint backgroundTexId = loadTexture("../Textures/Backgrounds/1_game_background/1_game_background.png");
     GLuint playerTexId = loadTexture("../Textures/Characters/Shark/Idle.png");
     GLuint fishTexId = loadTexture("../Textures/Fish/4.png");
+    GLuint trashTexId = loadTexture("../Textures/Objects/trash.png");
 
-    Sprite background;
-    background.setShader(&shader);
-    background.initialize(backgroundTexId, glm::vec3(800.0, 450.0, 0.0), glm::vec3(screenWidth, screenHeight, 1.0),
-                          0.0, screenWidth, screenHeight, 1, 1, 0, 1, 1);
+    std::vector<GLuint> texIdVector;
+    getBackgroundTexIds(2, &texIdVector);
+    std::vector<BackgroundLayer*> bgLayers;
+    int numberOfLayers = (int) texIdVector.size();
+    for (int i = 0; i < numberOfLayers; ++i) {
+        float step = (float) i * (playerMoveSpeed / (float) (numberOfLayers - 1));
+        auto *bgLayer = new BackgroundLayer();
+        bgLayer->setShader(&bgShader);
+        bgLayer->initialize(texIdVector[i], screenWidth, screenHeight, step, 0.01);
+        bgLayers.push_back(bgLayer);
+    }
+
+//    Sprite background;
+//    background.setShader(&shader);
+//    background.initialize(backgroundTexId, glm::vec3(800.0, 450.0, 0.0), glm::vec3(screenWidth, screenHeight, 1.0),
+//                          0.0, screenWidth, screenHeight, 1, 1, 0, 1, 1);
 
     Player player;
     player.setShader(&shader);
     player.initialize(playerTexId, glm::vec3(200.0, 450.0, 0.0), glm::vec3(100.0, 100.0, 1.0), 0.0, screenWidth, screenHeight, 1, 4, 0, 0.15, 0.01);
 
-    WaterElement fish;
-    fish.setShader(&shader);
-    fish.initialize(fishTexId, glm::vec3(52.0, 16.0, 1.0), 0.0, 3.0, screenWidth, screenHeight, 1, 2, 0, 0.15, 0.01);
+    std::vector<Fish*> fishes;
+    for (int i = 0; i < 5; ++i) {
+        auto *fish = new Fish();
+        fish->setShader(&shader);
+        fish->initialize(fishTexId, glm::vec3(52.0, 16.0, 1.0), 0.0, 3.0, screenWidth, screenHeight, 1, 2, 0, 0.15, 0.01);
+        fishes.push_back(fish);
+    }
 
-    glActiveTexture(GL_TEXTURE0);
+    std::vector<Trash*> trashVector;
+    for (int i = 0; i < 10; ++i) {
+        auto *trash = new Trash();
+        trash->setShader(&shader);
+        trash->initialize(trashTexId, 0.0, screenWidth, screenHeight, 0.01);
+        trashVector.push_back(trash);
+    }
 
-    shader.use();
+    int playerScore = 0;
 
     glm::mat4 projection = glm::ortho(0.0f,1600.0f,0.0f,900.0f,-1.0f,1.0f);
+
+    shader.use();
     shader.setMat4("projection", glm::value_ptr(projection));
 
+    bgShader.use();
+    bgShader.setMat4("projection", glm::value_ptr(projection));
+
     shader.setInt("texBuffer", 0);
+    bgShader.setInt("texBuffer", 1);
 
     // game loop
     while(!glfwWindowShouldClose(window)) {
@@ -96,12 +133,28 @@ int main() {
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        background.draw();
-        player.draw();
-        fish.draw();
+//        background.draw();
+        bgShader.use();
+        for (auto & bgLayer : bgLayers) {
+            bgLayer->draw();
+        }
 
-        if (player.collidesWith(&fish)) {
-            std::cout << "COLIDIU!!!!!" << std::endl;
+        shader.use();
+        player.draw();
+
+        for (auto & vectorFish : fishes) {
+            if (player.collidesWith(vectorFish)) {
+                vectorFish->resetPosition();
+                playerScore++;
+            }
+            vectorFish->draw();
+        }
+
+        for (auto & trash : trashVector) {
+            if (player.collidesWith(trash)) {
+                // TODO - quando player colide com a lata
+            }
+            trash->draw();
         }
 
         // check and call events and swap the buffers
@@ -175,4 +228,12 @@ GLuint loadTexture(const std::string& texturePath)
     glBindTexture(GL_TEXTURE_2D, 0);
 
     return texId;
+}
+
+void getBackgroundTexIds(int backgroundFolder, std::vector<GLuint> *texIdVector) {
+    for (auto const& dir_entry : std::filesystem::directory_iterator
+        {"../Textures/Backgrounds/" + std::to_string(backgroundFolder) + "_game_background/layers"}) {
+
+        texIdVector->push_back(loadTexture(dir_entry.path().string()));
+    }
 }

@@ -33,6 +33,7 @@ void Sprite::initialize(GLuint texId_, glm::vec3 pos_, glm::vec3 scale_, float a
 void Sprite::draw() {
     this->update();
 
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texId);
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -42,12 +43,7 @@ void Sprite::draw() {
 
 void Sprite::update() {
     this->updateAnimation();
-
-    glm::mat4 model = glm::mat4(1);
-    model = glm::translate(model, pos);
-    model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0, 0.0, 1.0));
-    model = glm::scale(model, scale);
-    this->shader->setMat4("model", glm::value_ptr(model));
+    this->applyModelTransformations();
 }
 
 void Sprite::setVAO() {
@@ -127,4 +123,12 @@ void Sprite::updateAnimation() {
     } else {
         this->shader->setVec2("offset", 0.0f, 0.0f);
     }
+}
+
+void Sprite::applyModelTransformations() {
+    glm::mat4 model = glm::mat4(1);
+    model = glm::translate(model, pos);
+    model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0, 0.0, 1.0));
+    model = glm::scale(model, scale);
+    this->shader->setMat4("model", glm::value_ptr(model));
 }

@@ -1,21 +1,23 @@
 
-#ifndef LEARNOPENGL_WATERELEMENT_H
-#define LEARNOPENGL_WATERELEMENT_H
+#ifndef LEARNOPENGL_FISH_H
+#define LEARNOPENGL_FISH_H
 
 
 #include "Sprite.h"
 #include "glm/vec3.hpp"
 
-class WaterElement : public Sprite {
+class Fish : public Sprite {
 public:
+    Fish() = default;
+    ~Fish();
     void initialize(GLuint texId_, glm::vec3 scale_, float angle_, float step_, int screenWidth_, int screenHeight_,
                     int rows, int columns, int startingRow,
                     double animationInterval_, double movementInterval_);
+    void resetPosition();
 private:
     void update() override;
-    void resetPosition();
     float step;
 };
 
 
-#endif //LEARNOPENGL_WATERELEMENT_H
+#endif //LEARNOPENGL_FISH_H

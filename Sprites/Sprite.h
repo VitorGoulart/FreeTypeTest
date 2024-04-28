@@ -12,7 +12,8 @@ public:
                             float angle_, int screenWidth, int screenHeight,
                             int rows, int columns, int startingRow,
                             double animationInterval, double movementInterval);
-    void draw();
+
+    virtual void draw();
     void terminate();
     inline void setShader(Shader *shader_) {
         this->shader = shader_;
@@ -24,13 +25,13 @@ public:
     bool collidesWith(Sprite *that);
     int screenWidth;
     int screenHeight;
-
+    GLuint texId;
 protected:
     virtual void update();
-    void setVAO();
+    virtual void setVAO();
     void updateAnimation();
+    void applyModelTransformations();
     GLuint VAO;
-    GLuint texId;
     glm::vec3 pos, scale;
     float angle;
     Shader *shader;
