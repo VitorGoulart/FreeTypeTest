@@ -41,26 +41,13 @@ void Sprite::draw() {
 }
 
 void Sprite::update() {
-    if (this->spriteColumns > 1){
-        float dx = 1.0f / (float) this->spriteColumns;
-        float dy = 1.0f / (float) this->spriteRows;
-        if (glfwGetTime() - this->lastAnimationUpdateTime >= this->animationInterval) {
-            this->lastAnimationUpdateTime = glfwGetTime();
-            this->currentColumn = (currentColumn + 1) % this->spriteColumns;
-        }
-
-        this->shader->setVec2("offset", (float) this->currentColumn * dx, (float) this->currentRow * dy);
-
-    } else {
-        this->shader->setVec2("offset", 0.0f, 0.0f);
-    }
+    this->updateAnimation();
 
     glm::mat4 model = glm::mat4(1);
     model = glm::translate(model, pos);
     model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0, 0.0, 1.0));
     model = glm::scale(model, scale);
     this->shader->setMat4("model", glm::value_ptr(model));
-
 }
 
 void Sprite::setVAO() {
@@ -105,23 +92,39 @@ void Sprite::setVAO() {
     glBindVertexArray(0);
 }
 
-float Sprite::getXMax() const {
+float Sprite::getMaxX() const {
     return this->pos.x + (this->width/2);
 }
 
-float Sprite::getXMin() const {
+float Sprite::getMinX() const {
     return this->pos.x - (this->width/2);
 }
 
-float Sprite::getYMax() const {
+float Sprite::getMaxY() const {
     return this->pos.y + (this->height/2);
 }
 
-float Sprite::getYMin() const {
+float Sprite::getMinY() const {
     return this->pos.y - (this->height/2);
 }
 
-bool Sprite::collidesWith(Sprite *object) {
-    return (this->getXMax() >= object->getXMin() && object->getXMax() >= this->getXMin()) &&
-           (this->getYMax() >= object->getYMin() && object->getYMax() >= this->getYMin());
+bool Sprite::collidesWith(Sprite *that) {
+    return (this->getMaxX() >= that->getMinX() && that->getMaxX() >= this->getMinX()) &&
+           (this->getMaxY() >= that->getMinY() && that->getMaxY() >= this->getMinY());
+}
+
+void Sprite::updateAnimation() {
+    if (this->spriteColumns > 1){
+        float dx = 1.0f / (float) this->spriteColumns;
+        float dy = 1.0f / (float) this->spriteRows;
+        if (glfwGetTime() - this->lastAnimationUpdateTime >= this->animationInterval) {
+            this->lastAnimationUpdateTime = glfwGetTime();
+            this->currentColumn = (currentColumn + 1) % this->spriteColumns;
+        }
+
+        this->shader->setVec2("offset", (float) this->currentColumn * dx, (float) this->currentRow * dy);
+
+    } else {
+        this->shader->setVec2("offset", 0.0f, 0.0f);
+    }
 }

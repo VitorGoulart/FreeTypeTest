@@ -13,21 +13,22 @@ public:
                             int rows, int columns, int startingRow,
                             double animationInterval, double movementInterval);
     void draw();
-    //void terminate();
+    void terminate();
     inline void setShader(Shader *shader_) {
         this->shader = shader_;
     }
-    float getXMax() const;
-    float getXMin() const;
-    float getYMax() const;
-    float getYMin() const;
-    bool collidesWith(Sprite *object);
+    float getMaxX() const;
+    float getMinX() const;
+    float getMaxY() const;
+    float getMinY() const;
+    bool collidesWith(Sprite *that);
     int screenWidth;
     int screenHeight;
 
 protected:
     virtual void update();
     void setVAO();
+    void updateAnimation();
     GLuint VAO;
     GLuint texId;
     glm::vec3 pos, scale;

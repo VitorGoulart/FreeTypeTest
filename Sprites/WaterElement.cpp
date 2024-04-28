@@ -15,6 +15,8 @@ void WaterElement::update() {
         this->pos.x -= step;
     }
 
+    this->updateAnimation();
+
     glm::mat4 model = glm::mat4(1);
     model = glm::translate(model, pos);
     model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0, 0.0, 1.0));

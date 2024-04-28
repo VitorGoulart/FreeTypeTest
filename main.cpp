@@ -10,6 +10,7 @@
 #include "Sprites/Sprite.h"
 #include "Sprites/Player.h"
 #include "Sprites/WaterElement.h"
+#include <unordered_map>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -99,6 +100,10 @@ int main() {
         player.draw();
         fish.draw();
 
+        if (player.collidesWith(&fish)) {
+            std::cout << "COLIDIU!!!!!" << std::endl;
+        }
+
         // check and call events and swap the buffers
         glfwSwapBuffers(window);
     }
@@ -116,18 +121,12 @@ void processInput(GLFWwindow * window, Player * player) {
         glfwSetWindowShouldClose(window, true);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        player->moveUp(10.0f);
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        player->moveLeft(10.0f);
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        player->moveDown(10.0f);
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        player->moveRight(10.0f);
-    }
+    std::unordered_map<int,bool> wasdMap = {};
+    wasdMap[GLFW_KEY_W] = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+    wasdMap[GLFW_KEY_A] = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+    wasdMap[GLFW_KEY_S] = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+    wasdMap[GLFW_KEY_D] = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+    player->move(10.0f, wasdMap);
 }
 
 void error_callback(int error, const char *msg) {
