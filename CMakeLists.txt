@@ -23,5 +23,10 @@ add_executable(learnOpenGL main.cpp
         Sprites/Trash.h
         Sprites/BackgroundLayer.cpp
         Sprites/BackgroundLayer.h
+        Text.cpp
+        Text.h
+        TextRenderer.cpp
+        TextRenderer.h
 )
 target_link_libraries(learnOpenGL glfw3)
+target_link_libraries(learnOpenGL freetype)
